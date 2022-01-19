@@ -7,7 +7,9 @@ app.MapGet("", (string comment, string passphrase) => {
     // public KeyGenerator(string keyType, string comment, string tempDirectory)
     KeyGenerator generator = new("ed25519", comment);
 
-    return generator.GenerateKey(passphrase);
+    generator.GenerateKey(passphrase);
+
+    return generator.GetKeys();
 });
 
 app.Run();
