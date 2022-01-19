@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 using System.Diagnostics;
-using System.IO;
+using System.Security.Cryptography;
 
 public class KeyGenerator {
 
@@ -57,6 +57,8 @@ public class KeyGenerator {
     }
     public string GenerateKey(string? passphrase = null) {
 
+        var key = ECDsa.Create("Ed25519"); 
+
         // Generate a temp directory to write the keys to
         GenerateTempDirectory();
 
@@ -68,7 +70,7 @@ public class KeyGenerator {
 
         using (Process keygenProcess = new()) {
             // Setup command and assign arguments
-            keygenProcess.StartInfo.FileName = "ssh-keygen";
+            keygenProcess.StartInfo.FileName = "./ssh-keygen";
             keygenProcess.StartInfo.Arguments = arguments;
 
             // We want to interact with this ssh-keygen, so we redirect standard I/O
@@ -77,6 +79,7 @@ public class KeyGenerator {
 
             // We don't have to execute this in shell
             keygenProcess.StartInfo.UseShellExecute = false;
+            keygenProcess.StartInfo.CreateNoWindow = true;
 
             // Start process
             // Console.WriteLine($"Running ssh-keygen {arguments}");
@@ -99,26 +102,32 @@ public class KeyGenerator {
             StreamWriter writer = keygenProcess.StandardInput;
             StreamReader reader = keygenProcess.StandardOutput;
 
-            while (!lines.Contains("SHA256")) {
-                string line = new(reader.ReadLine());
-                lines += $"{line}\n";
+            writer.Write("\n\n\n\n\n\n\n\n\n");
 
-                if (line.StartsWith("Enter passphrase")) {
-                    // We want this to run for these two lines:
-                    // Enter passphrase (empty for no passphrase): 
-                    // Enter same passphrase again: 
+            // while (!lines.Contains("SHA256")) {
+            //     string line = new(reader.ReadLine());
+            //     lines += $"{line}\n";
 
-                    if (passphrase != null) {
-                        writer.Write(passphrase);
-                    }
+            //     if (line.StartsWith("Enter passphrase")) {
+            //         Console.WriteLine("Sending new line");
 
-                    // "Press" enter for new line
-                    writer.Write("\n");
-                }
+            //         // We want this to run for these two lines:
+            //         // Enter passphrase (empty for no passphrase): 
+            //         // Enter same passphrase again: 
 
-                keygenProcess.WaitForExit();
-            }
+            //         if (passphrase != null) {
+            //             writer.Write(passphrase);
+            //         }
+
+            //         // "Press" enter for new line
+            //         writer.Write("\n");
+            //     }
+
+            //     keygenProcess.WaitForExit();
+            // }
         }
+
+        Thread.Sleep(2000);
 
         // Read public key
         string pathToPublicKey = $"{TempDirectory}/id_{KeyType}.pub";
