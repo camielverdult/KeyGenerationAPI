@@ -4,7 +4,7 @@ using System.Diagnostics;
 public class KeyGenerator {
 
     // We use this regex to only allow the alfabet
-    const string inputRegexString = "^[A-Za-z]+$";
+    const string inputRegexString = "^[A-Za-z0-9]+$";
     private readonly static Regex inputRegex = new Regex(inputRegexString, RegexOptions.IgnoreCase);
 
     const string emailRegexString = "[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?";
@@ -80,20 +80,21 @@ public class KeyGenerator {
 
         // We sanitize input first, we don't want anyone to mess with our ssh-keygen command
 
-        bool fail = false;
+        // bool fail = false;
         
-        if (!inputValid(Comment) || !emailValid(Comment)) {
-            CreationLog.Add("Invalid comment/e-mail for ssh-key!\n");
-            fail = true;
-        }
+        // // Check for valid comment or valid e-mail
+        // if (!inputValid(Comment) || !emailValid(Comment)) {
+        //     CreationLog.Add("Invalid comment/e-mail for ssh-key!\n");
+        //     fail = true;
+        // }
 
-        if (!inputValid(PassPhrase)) {
-            CreationLog.Add("Invalid passphrase for ssh-key!\n");
-            fail = true;
-        }
+        // if (!inputValid(PassPhrase)) {
+        //     CreationLog.Add("Invalid passphrase for ssh-key!\n");
+        //     fail = true;
+        // }
 
-        if (fail) 
-            return;
+        // if (fail) 
+        //     return;
 
         // We call the ssh-keygen command with the following argument format:
         // ssh-keygen -t type [-N new_passphrase] [-C comment] [-f output_keyfile] 
