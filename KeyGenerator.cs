@@ -11,11 +11,13 @@ public class KeyGenerator {
     {
         return regex.IsMatch(email);
     }
-    public string KeyType {get; set;}
-    public string Comment {get; set;}
-    private string TempDirectory {get; set;}
-    private string PublicKey {get; set;}
-    private string PrivateKey {get; set;}
+    public string KeyType { get; set; }
+    public string Comment { get; set; }
+    private string TempDirectory { get; set; }
+    private string PublicKey { get; set; }
+    private string PrivateKey { get; set; }
+
+    private string PassPhrase { get; set; }
 
     public string GetPublicKey() {
         return PublicKey;
@@ -34,10 +36,11 @@ public class KeyGenerator {
         return keys;
     }
 
-    public KeyGenerator(string keyType, string comment) {
+    public KeyGenerator(string keyType, string comment, string passPhrase) {
         // Here we construct the KeyGenerator object with the passed arguments
        KeyType = keyType;
        Comment = comment;
+       PassPhrase = passPhrase;
     }
 
     public void GenerateTempDirectory() {
@@ -50,85 +53,28 @@ public class KeyGenerator {
         System.IO.Directory.CreateDirectory(TempDirectory);
     }
 
-    public string GenerateArguments() {
-        // Here is an example of what this function will generate:
-        // -o -a 100 -t ed25519 -f 862603c0-2e86-47c4-98cc-fd595184fd6b -C "test"
-        return $"-o -a 100 -t {KeyType} -f {TempDirectory}/id_{KeyType} -C {Comment}";
-    }
-    public string GenerateKey(string? passphrase = null) {
-
-        var key = ECDsa.Create("Ed25519"); 
+    public void GenerateKey() {
 
         // Generate a temp directory to write the keys to
         GenerateTempDirectory();
 
-        // Generate arguments based on parameters passed to constructor
-        string arguments = GenerateArguments();
+        Process tclProcess = new();
+        // Setup command and assign arguments
+        tclProcess.StartInfo.FileName = "./use-keygen.tcl";
 
-        // This is where we store our output
-        string lines = "";
+        string arguments = $"{KeyType} ${TempDirectory} ${Comment} ${PassPhrase}";
+        tclProcess.StartInfo.Arguments = arguments;
+        Console.WriteLine(arguments);
 
-        using (Process keygenProcess = new()) {
-            // Setup command and assign arguments
-            keygenProcess.StartInfo.FileName = "./ssh-keygen";
-            keygenProcess.StartInfo.Arguments = arguments;
+        // We don't have to execute this in shell
+        tclProcess.StartInfo.UseShellExecute = true;
+        tclProcess.StartInfo.CreateNoWindow = true;
 
-            // We want to interact with this ssh-keygen, so we redirect standard I/O
-            keygenProcess.StartInfo.RedirectStandardInput = true;
-            keygenProcess.StartInfo.RedirectStandardOutput = true;
+        // Start process
+        tclProcess.Start();
 
-            // We don't have to execute this in shell
-            keygenProcess.StartInfo.UseShellExecute = false;
-            keygenProcess.StartInfo.CreateNoWindow = true;
-
-            // Start process
-            // Console.WriteLine($"Running ssh-keygen {arguments}");
-            keygenProcess.Start();
-            // Console.WriteLine("Running!");
-
-            /*
-                Example / Intermezzo:
-                ./ssh-keygen -o -a 100 -t ed25519 -f 862603c0-2e86-47c4-98cc-fd595184fd6b -C "test"
-
-                Will give the following lines of output:
-
-                Generating public/private ed25519 key pair.
-                Enter passphrase (empty for no passphrase): 
-
-                After this line, we want to enter the passphrase.
-            */
-
-            // Get strams to standard input and output of process
-            StreamWriter writer = keygenProcess.StandardInput;
-            StreamReader reader = keygenProcess.StandardOutput;
-
-            writer.Write("\n\n\n\n\n\n\n\n\n");
-
-            // while (!lines.Contains("SHA256")) {
-            //     string line = new(reader.ReadLine());
-            //     lines += $"{line}\n";
-
-            //     if (line.StartsWith("Enter passphrase")) {
-            //         Console.WriteLine("Sending new line");
-
-            //         // We want this to run for these two lines:
-            //         // Enter passphrase (empty for no passphrase): 
-            //         // Enter same passphrase again: 
-
-            //         if (passphrase != null) {
-            //             writer.Write(passphrase);
-            //         }
-
-            //         // "Press" enter for new line
-            //         writer.Write("\n");
-            //     }
-
-            //     keygenProcess.WaitForExit();
-            // }
-        }
-
-        Thread.Sleep(2000);
-
+        Thread.Sleep(1000);
+    
         // Read public key
         string pathToPublicKey = $"{TempDirectory}/id_{KeyType}.pub";
         PublicKey = File.ReadAllText(pathToPublicKey);
@@ -147,7 +93,5 @@ public class KeyGenerator {
 
         // Delete temp directory
         Directory.Delete(TempDirectory);
-
-        return lines;
     }
 }

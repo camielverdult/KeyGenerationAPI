@@ -1,17 +1,15 @@
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
-app.MapGet("", () => {
+app.MapPost("", (string comment, string passphrase) => {
 
-    string comment = "test";
-    string passphrase = "test";
+    // Initialize KeyGenerator for ed25519 with comment specified
+    KeyGenerator generator = new("ed25519", comment, passphrase);
 
-    // Generate SSH key
-    // public KeyGenerator(string keyType, string comment, string tempDirectory)
-    KeyGenerator generator = new("ed25519", comment);
+    // Generate keys
+    generator.GenerateKey();
 
-    generator.GenerateKey(passphrase);
-
+    // Return keys
     return generator.GetKeys();
 });
 
