@@ -5,7 +5,7 @@ app.MapPost("", (string comment, string passphrase) => {
 
     // Initialize KeyGenerator for ed25519 with comment specified
     KeyGenerator generator = new("ed25519", comment, passphrase);
-
+    
     // Generate keys
     generator.GenerateKey();
 
