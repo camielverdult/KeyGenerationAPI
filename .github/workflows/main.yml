@@ -1,0 +1,18 @@
+on:
+  # Trigger the workflow on push
+  # but only for the main branch
+  push:
+    branches:
+      - main
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      
+      - name: Build
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: keepersofweather/weatherapi:latest
