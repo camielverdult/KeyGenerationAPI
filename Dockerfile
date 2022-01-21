@@ -21,17 +21,17 @@ WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
-COPY ["WeatherAPI.csproj", "."]
-RUN dotnet restore "./WeatherAPI.csproj"
+COPY ["KeyGenerationApi.csproj", "."]
+RUN dotnet restore "./KeyGenerationApi.csproj"
 COPY . .
 WORKDIR "/src/."
-RUN dotnet build "WeatherAPI.csproj" -c Release -o /app/build
+RUN dotnet build "KeyGenerationApi.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "WeatherAPI.csproj" -c Release -o /app/publish
+RUN dotnet publish "KeyGenerationApi.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
-ENTRYPOINT ["dotnet", "WeatherAPI.dll"]
+ENTRYPOINT ["dotnet", "KeyGenerationApiAPI.dll"]
