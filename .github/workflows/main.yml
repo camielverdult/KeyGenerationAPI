@@ -19,6 +19,6 @@ jobs:
           push: false
 
       - uses: actions/upload-artifact@v2
-      with:
-        name: source
-        path: ${{github.workspace}}/src
+        with:
+          name: source
+          path: ${{github.workspace}}/src
