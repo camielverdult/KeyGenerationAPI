@@ -17,3 +17,8 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: false
+
+      - uses: actions/upload-artifact@v2
+      with:
+        name: source
+        path: ${{github.workspace}}/src
