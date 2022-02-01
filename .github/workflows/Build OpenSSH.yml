@@ -1,0 +1,39 @@
+on:
+  # Trigger the workflow on push
+  # but only for the main branch
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+    steps:
+
+      - uses: actions/checkout@v2
+
+      - name: Update packages
+        run: apt update
+
+      - name: Install OpenSSH dependencies
+        run: apt install clang libcrypto git
+
+      - name: Download OpenSSH
+        run: git clone https://github.com/openssh/openssh-portable 
+
+      - name: Change directory
+        run: cd openssh-portable
+
+      - name: Auto configure build environment
+        run: autoreconf
+
+      - name: Configure build tools
+        run: ./configure
+
+      - name: Build OpenSSH
+        run: make
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: source
+          path: ${{github.workspace}}/openssh-portable/ssh-keygen
