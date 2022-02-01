@@ -1,7 +1,7 @@
 # todo:
 # install openssh dependencies
 
-FROM ubuntu:latest AS builder-openssh
+FROM ubuntu:latest AS build-openssh
 
 RUN apt update
 RUN apt install clang libcrypto git
