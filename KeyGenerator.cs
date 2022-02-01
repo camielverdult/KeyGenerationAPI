@@ -5,18 +5,18 @@ public class KeyGenerator {
 
     // We use this regex to only allow the alfabet
     const string inputRegexString = "^[A-Za-z0-9]+$";
-    private readonly static Regex inputRegex = new Regex(inputRegexString, RegexOptions.IgnoreCase);
+    private static Regex inputRegex = new(inputRegexString, RegexOptions.IgnoreCase);
 
     const string emailRegexString = "[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?";
-    private readonly static Regex emailRegex = new Regex(emailRegexString, RegexOptions.IgnoreCase);
+    private static Regex emailRegex = new(emailRegexString, RegexOptions.IgnoreCase);
 
-    public bool inputValid(String input)
+    public bool InputValid(string input)
     {
         // This checks if the email is valid by matching it to the e-mail regex
         return inputRegex.IsMatch(input);
     }
 
-    public bool emailValid(String email)
+    public bool EmailValid(string email)
     {
         // This checks if the email is valid by matching it to the e-mail regex
         return emailRegex.IsMatch(email);
@@ -32,8 +32,7 @@ public class KeyGenerator {
     // These will be used for returning public and private key
     private string PublicKey { get; set; }
     private string PrivateKey { get; set; }
-
-    private List<string> CreationLog {get; set;}
+    private List<string> Logs {get; set;}
 
     public string GetPublicKey() {
         return PublicKey;
@@ -54,7 +53,7 @@ public class KeyGenerator {
         keys.Add("Private", GetPrivateKey());
 
         // This will be our ssh-keygen output and ascii art
-        keys.Add("Log", string.Join("\n", CreationLog.ToArray()));
+        keys.Add("Log", string.Join("\n", Logs.ToArray()));
         
         return keys;
     }
@@ -68,12 +67,13 @@ public class KeyGenerator {
         // We use this later, but initialize them in the constructor
         PublicKey = "";
         PrivateKey = "";
-        CreationLog = new();
+        Logs = new();
 
         // We want to have a name that is (pretty) unique for each session
         // So we use Guid as a file name, we delete the file afterwards
-        Guid sessionUUID = Guid.NewGuid();
-        FileName = sessionUUID.ToString();
+        Guid sessionUuid = Guid.NewGuid();
+        string tempFile = sessionUuid.ToString();
+        FileName = Path.Combine(Path.GetTempPath(), tempFile);
     }
 
     public void GenerateKey() {
@@ -135,7 +135,7 @@ public class KeyGenerator {
             string line = keygenProcess.StandardOutput.ReadLine()!;
 
             // Write line to CreationLog
-            CreationLog.Add(line);
+            Logs.Add(line);
         }
 
         // We don't want to do the following steps if the process might still be
@@ -151,10 +151,9 @@ public class KeyGenerator {
         // Delete public key file
         File.Delete(publicKeyName);
 
-
         // The private key has the same file name as passed to ssh-keygen
         string privateKeyName = FileName;
-
+    
         // Read contents of private key
         PrivateKey = File.ReadAllText(privateKeyName);
 
