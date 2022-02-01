@@ -23,3 +23,8 @@ jobs:
       
       - name: Build
         run: dotnet build -c Release --no-restore
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: KeyGenerationApi.dll
+          path: ${{github.workspace}}/KeyGenerationApi.dll
