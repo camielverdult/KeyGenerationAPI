@@ -13,10 +13,10 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Update packages
-        run: apt update
+        run: apt-get update
 
       - name: Install OpenSSH dependencies
-        run: apt install clang libcrypto git
+        run: apt-get install clang libcrypto git
 
       - name: Download OpenSSH
         run: git clone https://github.com/openssh/openssh-portable 
