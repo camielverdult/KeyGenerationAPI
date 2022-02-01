@@ -4,35 +4,34 @@ using System.Diagnostics;
 public class KeyGenerator {
 
     // We use this regex to only allow the alfabet
-    const string inputRegexString = "^[A-Za-z0-9]+$";
-    private static Regex inputRegex = new(inputRegexString, RegexOptions.IgnoreCase);
+    const string InputRegexString = "^[A-Za-z0-9]+$";
+    private static readonly Regex InputRegex = new(InputRegexString, RegexOptions.IgnoreCase);
 
-    const string emailRegexString = "[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?";
-    private static Regex emailRegex = new(emailRegexString, RegexOptions.IgnoreCase);
-
-    public bool InputValid(string input)
+    const string EmailRegexString = "[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?";
+    private static readonly Regex EmailRegex = new(EmailRegexString, RegexOptions.IgnoreCase);
+    private bool InputValid(string input)
     {
         // This checks if the email is valid by matching it to the e-mail regex
-        return inputRegex.IsMatch(input);
+        return InputRegex.IsMatch(input);
     }
 
-    public bool EmailValid(string email)
+    private bool EmailValid(string email)
     {
         // This checks if the email is valid by matching it to the e-mail regex
-        return emailRegex.IsMatch(email);
+        return EmailRegex.IsMatch(email);
     }
 
 
     // These will be used to generate the arguments for ssh-keygen
-    public string KeyType { get; set; }
-    public string Comment { get; set; }
-    private string FileName { get; set; }
-    private string PassPhrase { get; set; }
+    public string KeyType { get; }
+    public string Comment { get; }
+    private string FileName { get; }
+    private string PassPhrase { get; }
 
     // These will be used for returning public and private key
     private string PublicKey { get; set; }
     private string PrivateKey { get; set; }
-    private List<string> Logs {get; set;}
+    private List<string> Logs {get;}
 
     public string GetPublicKey() {
         return PublicKey;
@@ -67,7 +66,7 @@ public class KeyGenerator {
         // We use this later, but initialize them in the constructor
         PublicKey = "";
         PrivateKey = "";
-        Logs = new();
+        Logs = new List<string>();
 
         // We want to have a name that is (pretty) unique for each session
         // So we use Guid as a file name, we delete the file afterwards
@@ -81,18 +80,18 @@ public class KeyGenerator {
         // We sanitize input first, we don't want anyone to mess with our ssh-keygen command
 
         // bool fail = false;
-        
+        //
         // // Check for valid comment or valid e-mail
-        // if (!inputValid(Comment) || !emailValid(Comment)) {
-        //     CreationLog.Add("Invalid comment/e-mail for ssh-key!\n");
+        // if (!InputValid(Comment) || !EmailValid(Comment)) {
+        //     Logs.Add("Invalid comment/e-mail for ssh-key!\n");
         //     fail = true;
         // }
-
-        // if (!inputValid(PassPhrase)) {
-        //     CreationLog.Add("Invalid passphrase for ssh-key!\n");
+        //
+        // if (!InputValid(PassPhrase)) {
+        //     Logs.Add("Invalid passphrase for ssh-key!\n");
         //     fail = true;
         // }
-
+        //
         // if (fail) 
         //     return;
 
@@ -115,7 +114,7 @@ public class KeyGenerator {
                 FileName = "./ssh-keygen", 
 
                 // We use the following commands, see comment block above why
-                Arguments = $"-t {KeyType} -N {PassPhrase} -C {Comment} -f {FileName}",
+                Arguments = $"-t {KeyType} -N \"{PassPhrase}\" -C \"{Comment}\" -f \"{FileName}\"",
 
                 // We redirect the standard output so that we can return the output
                 // of the command to the user

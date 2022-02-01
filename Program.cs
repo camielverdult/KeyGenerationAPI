@@ -3,11 +3,11 @@ using System.Diagnostics;
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
-app.MapPost("", (string comment, string passphrase) => {
-
+app.MapPost("", (string comment, string passphrase) =>
+{
     // Start stopwatch
     var stopWatch = Stopwatch.StartNew();
-    
+
     // Initialize KeyGenerator for ed25519 with comment specified
     KeyGenerator generator = new("ed25519", comment, passphrase);
     
